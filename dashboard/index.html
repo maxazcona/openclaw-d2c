@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw Command Center</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <span class="logo">✨</span>
+                <h1>OpenClaw Command Center</h1>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator connected" id="status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Local Mode</span>
+                </div>
+                <div class="header-stats">
+                    <span class="stat" id="task-count">📋 0 tasks</span>
+                    <span class="stat" id="agent-count">🤖 1 agent</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Container -->
+        <div class="main-container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <nav class="nav">
+                    <button class="nav-item active" data-view="tasks">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-text">Tasks</span>
+                        <span class="nav-badge" id="tasks-badge">0</span>
+                    </button>
+                    <button class="nav-item" data-view="brain">
+                        <span class="nav-icon">🧠</span>
+                        <span class="nav-text">Second Brain</span>
+                    </button>
+                    <button class="nav-item" data-view="agents">
+                        <span class="nav-icon">🤖</span>
+                        <span class="nav-text">Agents</span>
+                    </button>
+                    <button class="nav-item" data-view="templates">
+                        <span class="nav-icon">📄</span>
+                        <span class="nav-text">Templates</span>
+                    </button>
+                    <button class="nav-item" data-view="research">
+                        <span class="nav-icon">🔬</span>
+                        <span class="nav-text">Research</span>
+                    </button>
+                    <button class="nav-item" data-view="library">
+                        <span class="nav-icon">📚</span>
+                        <span class="nav-text">Library</span>
+                    </button>
+                    <button class="nav-item" data-view="links">
+                        <span class="nav-icon">🔗</span>
+                        <span class="nav-text">Links</span>
+                    </button>
+                    <button class="nav-item" data-view="settings">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-text">Settings</span>
+                    </button>
+                </nav>
+                
+                <div class="sidebar-footer">
+                    <div class="agent-info">
+                        <span class="agent-avatar">✨</span>
+                        <div class="agent-details">
+                            <span class="agent-name">Clarus</span>
+                            <span class="agent-role">Chief of Staff</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="content">
+                <!-- Tasks View (Default) -->
+                <div class="view active" id="tasks-view">
+                    <div class="view-header">
+                        <div class="view-title">
+                            <h2>📋 Task Manager</h2>
+                            <span class="view-subtitle">Manage tasks for you and your AI agents</span>
+                        </div>
+                        <div class="view-actions">
+                            <select id="filter-priority" class="filter-select">
+                                <option value="all">All Priorities</option>
+                                <option value="high">🔴 High</option>
+                                <option value="medium">🟡 Medium</option>
+                                <option value="low">🟢 Low</option>
+                            </select>
+                            <select id="filter-assignee" class="filter-select">
+                                <option value="all">All Assignees</option>
+                                <option value="agent">🤖 Agent</option>
+                                <option value="human">👤 Human</option>
+                            </select>
+                            <button class="btn btn-primary" id="add-task-btn">
+                                <span>+ New Task</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="kanban-board" id="kanban-board">
+                        <!-- To Do Column -->
+                        <div class="kanban-column" data-status="todo">
+                            <div class="column-header">
+                                <div class="column-title-row">
+                                    <span class="column-icon">📥</span>
+                                    <span class="column-title">To Do</span>
+                                </div>
+                                <span class="column-count" id="todo-count">0</span>
+                            </div>
+                            <div class="column-tasks" id="todo-tasks" data-status="todo">
+                                <!-- Tasks render here -->
+                            </div>
+                            <button class="add-task-column-btn" data-status="todo">+ Add task</button>
+                        </div>
+
+                        <!-- In Progress Column -->
+                        <div class="kanban-column" data-status="working">
+                            <div class="column-header">
+                                <div class="column-title-row">
+                                    <span class="column-icon">🔄</span>
+                                    <span class="column-title">In Progress</span>
+                                </div>
+                                <span class="column-count" id="working-count">0</span>
+                            </div>
+                            <div class="column-tasks" id="working-tasks" data-status="working">
+                                <!-- Tasks render here -->
+                            </div>
+                        </div>
+
+                        <!-- Review Column -->
+                        <div class="kanban-column" data-status="review">
+                            <div class="column-header">
+                                <div class="column-title-row">
+                                    <span class="column-icon">👀</span>
+                                    <span class="column-title">Review</span>
+                                </div>
+                                <span class="column-count" id="review-count">0</span>
+                            </div>
+                            <div class="column-tasks" id="review-tasks" data-status="review">
+                                <!-- Tasks render here -->
+                            </div>
+                        </div>
+
+                        <!-- Done Column -->
+                        <div class="kanban-column" data-status="done">
+                            <div class="column-header">
+                                <div class="column-title-row">
+                                    <span class="column-icon">✅</span>
+                                    <span class="column-title">Done</span>
+                                </div>
+                                <span class="column-count" id="done-count">0</span>
+                            </div>
+                            <div class="column-tasks" id="done-tasks" data-status="done">
+                                <!-- Tasks render here -->
+                            </div>
+                            <button class="clear-done-btn" id="clear-done">🗑️ Clear completed</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Brain View -->
+                <div class="view" id="brain-view">
+                    <div class="view-header">
+                        <div class="view-title">
+                            <h2>🧠 Second Brain</h2>
+                            <span class="view-subtitle">Your knowledge management system (PARA method)</span>
+                        </div>
+                    </div>
+                    <div class="brain-container">
+                        <div class="para-grid">
+                            <div class="para-card" data-folder="projects">
+                                <div class="para-icon">🎯</div>
+                                <h3>Projects</h3>
+                                <p>Active projects with deadlines</p>
+                                <span class="para-count">0 items</span>
+                            </div>
+                            <div class="para-card" data-folder="areas">
+                                <div class="para-icon">🏠</div>
+                                <h3>Areas</h3>
+                                <p>Ongoing responsibilities</p>
+                                <span class="para-count">4 folders</span>
+                            </div>
+                            <div class="para-card" data-folder="resources">
+                                <div class="para-icon">📚</div>
+                                <h3>Resources</h3>
+                                <p>Reference materials</p>
+                                <span class="para-count">4 folders</span>
+                            </div>
+                            <div class="para-card" data-folder="archive">
+                                <div class="para-icon">🗄️</div>
+                                <h3>Archive</h3>
+                                <p>Completed & inactive</p>
+                                <span class="para-count">0 items</span>
+                            </div>
+                        </div>
+                        <div class="brain-inbox">
+                            <h3>📥 Inbox</h3>
+                            <p>Quick capture — items to be processed</p>
+                            <textarea id="brain-inbox-input" placeholder="Capture a quick note, idea, or link..."></textarea>
+                            <button class="btn btn-primary" id="capture-btn">Capture</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agents View -->
+                <div class="view" id="agents-view">
+                    <div class="view-header">
+                        <div class="view-title">
+                            <h2>🤖 Agent Orchestration</h2>
+                            <span class="view-subtitle">Monitor and manage your AI agents</span>
+                        </div>
+                        <button class="btn btn-primary" id="add-agent-btn">+ Configure Agent</button>
+                    </div>
+                    <div class="agents-grid">
+                        <div class="agent-card active">
+                            <div class="agent-card-header">
+                                <span class="agent-card-avatar">✨</span>
+                                <div class="agent-card-info">
+                                    <h3>Clarus</h3>
+                                    <span class="agent-card-role">Chief of Staff</span>
+                                </div>
+                                <span class="agent-status-badge online">● Online</span>
+                            </div>
+                            <div class="agent-card-body">
+                                <div class="agent-stat">
+                                    <span class="stat-label">Model</span>
+                                    <span class="stat-value">Claude Opus</span>
+                                </div>
+                                <div class="agent-stat">
+                                    <span class="stat-label">Location</span>
+                                    <span class="stat-value">Laptop (local)</span>
+                                </div>
+                                <div class="agent-stat">
+                                    <span class="stat-label">Current Task</span>
+                                    <span class="stat-value">Building Command Center</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="agent-card planned">
+                            <div class="agent-card-header">
+                                <span class="agent-card-avatar">🔬</span>
+                                <div class="agent-card-info">
+                                    <h3>Research Agent</h3>
+                                    <span class="agent-card-role">Market Research</span>
+                                </div>
+                                <span class="agent-status-badge planned">○ Planned</span>
+                            </div>
+                            <div class="agent-card-body">
+                                <div class="agent-stat">
+                                    <span class="stat-label">Model</span>
+                                    <span class="stat-value">Claude Sonnet</span>
+                                </div>
+                                <div class="agent-stat">
+                                    <span class="stat-label">Location</span>
+                                    <span class="stat-value">VPS (Hostinger)</span>
+                                </div>
+                                <div class="agent-stat">
+                                    <span class="stat-label">Tasks</span>
+                                    <span class="stat-value">Competitor analysis, trends</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="agent-card planned">
+                            <div class="agent-card-header">
+                                <span class="agent-card-avatar">📣</span>
+                                <div class="agent-card-info">
+                                    <h3>Content Agent</h3>
+                                    <span class="agent-card-role">Marketing Content</span>
+                                </div>
+                                <span class="agent-status-badge planned">○ Planned</span>
+                            </div>
+                            <div class="agent-card-body">
+                                <div class="agent-stat">
+                                    <span class="stat-label">Model</span>
+                                    <span class="stat-value">Claude Sonnet</span>
+                                </div>
+                                <div class="agent-stat">
+                                    <span class="stat-label">Location</span>
+                                    <span class="stat-value">VPS (Hostinger)</span>
+                                </div>
+                                <div class="agent-stat">
+                                    <span class="stat-label">Tasks</span>
+                                    <span class="stat-value">Social media, email copy</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Templates View -->
+                <div class="view" id="templates-view">
+                    <div class="view-header">
+                        <div class="view-title">
+                            <h2>📄 Templates</h2>
+                            <span class="view-subtitle">Generate documents from templates</span>
+                        </div>
+                    </div>
+                    <div class="templates-grid">
+                        <div class="template-card" data-template="morning-brief">
+                            <div class="template-icon">☀️</div>
+                            <h3>Morning Brief</h3>
+                            <p>Daily summary with calendar, emails, metrics, and AI overnight work</p>
+                            <div class="template-actions">
+                                <button class="btn btn-secondary">Preview</button>
+                                <button class="btn btn-primary">Generate</button>
+                            </div>
+                        </div>
+                        <div class="template-card" data-template="weekly-review">
+                            <div class="template-icon">📊</div>
+                            <h3>Weekly Review</h3>
+                            <p>Reflection on wins, challenges, metrics, and planning for next week</p>
+                            <div class="template-actions">
+                                <button class="btn btn-secondary">Preview</button>
+                                <button class="btn btn-primary">Generate</button>
+                            </div>
+                        </div>
+                        <div class="template-card" data-template="competitor-analysis">
+                            <div class="template-icon">🔍</div>
+                            <h3>Competitor Analysis</h3>
+                            <p>Deep dive on a competitor: products, pricing, marketing, SWOT</p>
+                            <div class="template-actions">
+                                <button class="btn btn-secondary">Preview</button>
+                                <button class="btn btn-primary">Generate</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Research View -->
+                <div class="view" id="research-view">
+                    <div class="view-header">
+                        <div class="view-title">
+                            <h2>🔬 Research</h2>
+                            <span class="view-subtitle">Review research and save insights to memory</span>
+                        </div>
+                    </div>
+                    <div class="research-container">
+                        <div class="research-list" id="research-list">
+                            <div class="research-item" data-file="multi-agent-orchestration.md">
+                                <div class="research-item-header">
+                                    <span class="research-icon">🤖</span>
+                                    <h3>Multi-Agent Orchestration</h3>
+                                    <span class="research-date">Jan 31, 2026</span>
+                                </div>
+                                <p>Claude-flow, parallel agents, VPS deployment patterns</p>
+                                <div class="research-actions">
+                                    <button class="btn btn-secondary btn-sm">View</button>
+                                    <button class="btn btn-primary btn-sm">→ Save to Memory</button>
+                                </div>
+                            </div>
+                            <div class="research-item" data-file="alex-finn-henry.md">
+                                <div class="research-item-header">
+                                    <span class="research-icon">🧠</span>
+                                    <h3>Alex Finn & Henry Study</h3>
+                                    <span class="research-date">Jan 31, 2026</span>
+                                </div>
+                                <p>Vanguard AI agent patterns, overnight work, Creator Buddy</p>
+                                <div class="research-actions">
+                                    <button class="btn btn-secondary btn-sm">View</button>
+                                    <button class="btn btn-primary btn-sm">→ Save to Memory</button>
+                                </div>
+                            </div>
+                            <div class="research-item" data-file="useful-skills.md">
+                                <div class="research-item-header">
+                                    <span class="research-icon">🛠️</span>
+                                    <h3>Useful Skills Catalog</h3>
+                                    <span class="research-date">Jan 31, 2026</span>
+                                </div>
+                                <p>700+ OpenClaw skills categorized for D2C use case</p>
+                                <div class="research-actions">
+                                    <button class="btn btn-secondary btn-sm">View</button>
+                                    <button class="btn btn-primary btn-sm">→ Save to Memory</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Library View -->
+                <div class="view" id="library-view">
+                    <div class="view-header">
+                        <div class="view-title">
+                            <h2>📚 Knowledge Library</h2>
+                            <span class="view-subtitle">Upload books, extract insights, apply to your business</span>
+                        </div>
+                        <button class="btn btn-primary" id="upload-book-btn">
+                            <span>📤 Upload Book</span>
+                        </button>
+                    </div>
+                    <div class="library-container">
+                        <!-- Upload Zone -->
+                        <div class="upload-zone" id="upload-zone">
+                            <div class="upload-icon">📖</div>
+                            <h3>Drop PDF or EPUB here</h3>
+                            <p>Or click to browse files</p>
+                            <input type="file" id="book-input" accept=".pdf,.epub" hidden />
+                        </div>
+
+                        <!-- Processing Status -->
+                        <div class="processing-status" id="processing-status" style="display: none;">
+                            <div class="processing-spinner"></div>
+                            <h3>Processing book...</h3>
+                            <p id="processing-step">Extracting text</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Books Grid -->
+                        <div class="books-grid" id="books-grid">
+                            <!-- Example Book Card -->
+                            <div class="book-card" data-book="atomic-habits">
+                                <div class="book-cover">
+                                    <span class="book-emoji">📗</span>
+                                </div>
+                                <div class="book-info">
+                                    <h3 class="book-title">Atomic Habits</h3>
+                                    <p class="book-author">James Clear</p>
+                                    <div class="book-stats">
+                                        <span>🎯 5 takeaways</span>
+                                        <span>📜 4 principles</span>
+                                    </div>
+                                    <div class="book-tags">
+                                        <span class="book-tag">Productivity</span>
+                                        <span class="book-tag">Habits</span>
+                                    </div>
+                                </div>
+                                <div class="book-actions">
+                                    <button class="btn btn-secondary btn-sm">View</button>
+                                    <button class="btn btn-primary btn-sm">→ Memory</button>
+                                </div>
+                            </div>
+
+                            <div class="book-card" data-book="4hww">
+                                <div class="book-cover">
+                                    <span class="book-emoji">📘</span>
+                                </div>
+                                <div class="book-info">
+                                    <h3 class="book-title">4-Hour Work Week</h3>
+                                    <p class="book-author">Tim Ferriss</p>
+                                    <div class="book-stats">
+                                        <span>🎯 7 takeaways</span>
+                                        <span>📜 5 principles</span>
+                                    </div>
+                                    <div class="book-tags">
+                                        <span class="book-tag">Business</span>
+                                        <span class="book-tag">Automation</span>
+                                    </div>
+                                </div>
+                                <div class="book-actions">
+                                    <button class="btn btn-secondary btn-sm">View</button>
+                                    <button class="btn btn-primary btn-sm">→ Memory</button>
+                                </div>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div class="book-card add-book" id="add-book-card">
+                                <div class="add-book-content">
+                                    <span class="add-icon">➕</span>
+                                    <p>Add a book</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Book Detail Modal -->
+                <div class="modal" id="book-detail-modal">
+                    <div class="modal-content modal-xl">
+                        <div class="modal-header">
+                            <div class="book-modal-title">
+                                <span class="book-emoji-large">📗</span>
+                                <div>
+                                    <h3 id="modal-book-title">Atomic Habits</h3>
+                                    <p id="modal-book-author">by James Clear</p>
+                                </div>
+                            </div>
+                            <button class="modal-close" id="close-book-modal">&times;</button>
+                        </div>
+                        <div class="modal-body book-detail-body">
+                            <div class="book-sections">
+                                <!-- Summary -->
+                                <div class="book-section">
+                                    <h4>📝 Executive Summary</h4>
+                                    <div class="section-content" id="book-summary">
+                                        <p>This book presents a proven framework for improving every day. James Clear reveals practical strategies that will teach you exactly how to form good habits, break bad ones, and master the tiny behaviors that lead to remarkable results.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Key Takeaways -->
+                                <div class="book-section">
+                                    <h4>🎯 Key Takeaways</h4>
+                                    <div class="section-content" id="book-takeaways">
+                                        <ul class="takeaways-list">
+                                            <li>Habits are the compound interest of self-improvement</li>
+                                            <li>Focus on systems, not goals</li>
+                                            <li>Make it obvious, attractive, easy, and satisfying</li>
+                                            <li>The 1% rule: small improvements compound</li>
+                                            <li>Environment design > willpower</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Commandments -->
+                                <div class="book-section">
+                                    <h4>📜 Core Principles (Commandments)</h4>
+                                    <div class="section-content commandments" id="book-commandments">
+                                        <div class="commandment">
+                                            <span class="commandment-number">I</span>
+                                            <p>Every action is a vote for the type of person you wish to become</p>
+                                        </div>
+                                        <div class="commandment">
+                                            <span class="commandment-number">II</span>
+                                            <p>You do not rise to the level of your goals, you fall to the level of your systems</p>
+                                        </div>
+                                        <div class="commandment">
+                                            <span class="commandment-number">III</span>
+                                            <p>The most effective way to change habits is to change your identity</p>
+                                        </div>
+                                        <div class="commandment">
+                                            <span class="commandment-number">IV</span>
+                                            <p>Make the cue obvious, the craving attractive, the response easy, and the reward satisfying</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Business Application -->
+                                <div class="book-section highlight">
+                                    <h4>💼 Applied to Your Business</h4>
+                                    <div class="section-content" id="book-application">
+                                        <p><strong>For Your Business:</strong></p>
+                                        <ul>
+                                            <li><strong>Customer Habits:</strong> Create routines that become automatic for customers</li>
+                                            <li><strong>Systems:</strong> Build automated follow-up sequences instead of relying on one-time campaigns</li>
+                                            <li><strong>Environment Design:</strong> Make reordering friction-free with subscription options</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="book-sidebar">
+                                <div class="sidebar-section">
+                                    <h4>Actions</h4>
+                                    <button class="btn btn-primary btn-block" id="save-to-memory-btn">
+                                        📥 Save Principles to Memory
+                                    </button>
+                                    <button class="btn btn-secondary btn-block" id="ask-about-book-btn">
+                                        💬 Ask About This Book
+                                    </button>
+                                    <button class="btn btn-secondary btn-block" id="reprocess-book-btn">
+                                        🔄 Regenerate Insights
+                                    </button>
+                                </div>
+                                <div class="sidebar-section">
+                                    <h4>Details</h4>
+                                    <div class="detail-row">
+                                        <span>Format:</span>
+                                        <span>PDF</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span>Pages:</span>
+                                        <span>320</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span>Added:</span>
+                                        <span>Jan 31, 2026</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Links View -->
+                <div class="view" id="links-view">
+                    <div class="view-header">
+                        <div class="view-title">
+                            <h2>🔗 Links & Resources</h2>
+                            <span class="view-subtitle">Important resources organized by category</span>
+                        </div>
+                        <button class="btn btn-primary" id="add-link-btn">+ Add Link</button>
+                    </div>
+                    <div class="links-container">
+                        <!-- Quick Access / Monitoring -->
+                        <div class="links-category highlight">
+                            <h3>⚡ Quick Access (Local)</h3>
+                            <div class="links-list">
+                                <a href="http://127.0.0.1:18789/channels" target="_blank" class="link-item link-local">
+                                    <span class="link-icon">📡</span>
+                                    <span class="link-text">Gateway Dashboard</span>
+                                    <span class="link-badge">Local</span>
+                                </a>
+                                <a href="http://localhost:8080/" target="_blank" class="link-item link-local">
+                                    <span class="link-icon">🎛️</span>
+                                    <span class="link-text">Command Center</span>
+                                    <span class="link-badge">Local</span>
+                                </a>
+                                <a href="https://claude.ai/settings/usage" target="_blank" class="link-item link-important">
+                                    <span class="link-icon">🧠</span>
+                                    <span class="link-text">Claude Usage Monitor</span>
+                                    <span class="link-badge warning">Monitor</span>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Monitoring & Costs -->
+                        <div class="links-category">
+                            <h3>📊 Monitoring & Costs</h3>
+                            <div class="links-list">
+                                <a href="https://console.anthropic.com/settings/usage" target="_blank" class="link-item">
+                                    <span class="link-icon">📈</span>
+                                    <span class="link-text">Anthropic API Usage</span>
+                                </a>
+                                <a href="https://platform.openai.com/usage" target="_blank" class="link-item">
+                                    <span class="link-icon">📊</span>
+                                    <span class="link-text">OpenAI API Usage</span>
+                                </a>
+                                <a href="https://elevenlabs.io/app/usage" target="_blank" class="link-item">
+                                    <span class="link-icon">🎤</span>
+                                    <span class="link-text">ElevenLabs Usage</span>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="links-category">
+                            <h3>📚 Documentation</h3>
+                            <div class="links-list">
+                                <a href="https://docs.openclaw.ai" target="_blank" class="link-item">
+                                    <span class="link-icon">📖</span>
+                                    <span class="link-text">OpenClaw Docs</span>
+                                </a>
+                                <a href="https://github.com/openclaw/openclaw" target="_blank" class="link-item">
+                                    <span class="link-icon">🐙</span>
+                                    <span class="link-text">GitHub Repo</span>
+                                </a>
+                                <a href="https://clawdhub.com" target="_blank" class="link-item">
+                                    <span class="link-icon">🛠️</span>
+                                    <span class="link-text">ClawdHub Skills</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="links-category">
+                            <h3>🎓 Learning</h3>
+                            <div class="links-list">
+                                <a href="https://x.com/AlexFinn" target="_blank" class="link-item">
+                                    <span class="link-icon">🧠</span>
+                                    <span class="link-text">@AlexFinn (Henry creator)</span>
+                                </a>
+                                <a href="https://github.com/ruvnet/claude-flow" target="_blank" class="link-item">
+                                    <span class="link-icon">🌊</span>
+                                    <span class="link-text">Claude-Flow (multi-agent)</span>
+                                </a>
+                                <a href="https://github.com/VoltAgent/awesome-openclaw-skills" target="_blank" class="link-item">
+                                    <span class="link-icon">⭐</span>
+                                    <span class="link-text">Awesome OpenClaw Skills</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="links-category">
+                            <h3>🔧 Tools</h3>
+                            <div class="links-list">
+                                <a href="https://console.anthropic.com" target="_blank" class="link-item">
+                                    <span class="link-icon">🤖</span>
+                                    <span class="link-text">Anthropic Console</span>
+                                </a>
+                                <a href="https://platform.openai.com" target="_blank" class="link-item">
+                                    <span class="link-icon">🧪</span>
+                                    <span class="link-text">OpenAI Platform</span>
+                                </a>
+                                <a href="https://notion.so" target="_blank" class="link-item">
+                                    <span class="link-icon">📝</span>
+                                    <span class="link-text">Notion</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings View -->
+                <div class="view" id="settings-view">
+                    <div class="view-header">
+                        <div class="view-title">
+                            <h2>⚙️ Settings</h2>
+                            <span class="view-subtitle">Configure your Command Center</span>
+                        </div>
+                    </div>
+                    <div class="settings-container">
+                        <div class="settings-group">
+                            <h3>🔌 Gateway Connection</h3>
+                            <div class="setting-item">
+                                <label>Gateway URL</label>
+                                <input type="text" id="gateway-url" value="http://localhost:18789" />
+                            </div>
+                            <div class="setting-item">
+                                <label>Gateway Token</label>
+                                <input type="password" id="gateway-token" placeholder="Enter token" />
+                            </div>
+                            <button class="btn btn-primary" id="connect-gateway">Connect</button>
+                        </div>
+                        
+                        <div class="settings-group">
+                            <h3>🎨 Appearance</h3>
+                            <div class="setting-item">
+                                <label>Theme</label>
+                                <select id="theme-select">
+                                    <option value="dark" selected>Dark</option>
+                                    <option value="light">Light</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>📊 Data</h3>
+                            <button class="btn btn-secondary" id="export-tasks">Export Tasks</button>
+                            <button class="btn btn-secondary" id="import-tasks">Import Tasks</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Quick Input Bar -->
+        <div class="input-bar">
+            <div class="input-container">
+                <span class="input-icon">💬</span>
+                <input type="text" id="quick-input" placeholder="Quick add task: 'Research competitor X @agent #high' or send message..." />
+                
+                <!-- Multimedia Buttons -->
+                <div class="input-media-buttons">
+                    <button class="media-btn" id="voice-btn" title="Record voice note">
+                        <span>🎤</span>
+                    </button>
+                    <button class="media-btn" id="photo-btn" title="Attach photo">
+                        <span>📷</span>
+                    </button>
+                    <button class="media-btn" id="file-btn" title="Attach file">
+                        <span>📎</span>
+                    </button>
+                </div>
+                
+                <button class="btn btn-primary" id="send-btn">
+                    <span>Add / Send</span>
+                </button>
+            </div>
+            
+            <!-- Hidden file inputs -->
+            <input type="file" id="photo-input" accept="image/*" hidden />
+            <input type="file" id="file-input" accept="*/*" hidden />
+            
+            <!-- Voice Recording Indicator -->
+            <div class="recording-indicator" id="recording-indicator" style="display: none;">
+                <span class="recording-dot"></span>
+                <span class="recording-text">Recording...</span>
+                <span class="recording-time" id="recording-time">0:00</span>
+                <button class="btn btn-sm btn-danger" id="stop-recording">Stop</button>
+            </div>
+            
+            <!-- Attachment Preview -->
+            <div class="attachment-preview" id="attachment-preview" style="display: none;">
+                <div class="attachment-item" id="attachment-item">
+                    <span class="attachment-icon">📎</span>
+                    <span class="attachment-name" id="attachment-name">file.pdf</span>
+                    <button class="attachment-remove" id="remove-attachment">&times;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Task Modal -->
+        <div class="modal" id="add-task-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📋 New Task</h3>
+                    <button class="modal-close" id="close-task-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" id="task-title" placeholder="What needs to be done?" autofocus />
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="task-description" rows="3" placeholder="Add details, context, or acceptance criteria..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Priority</label>
+                            <select id="task-priority">
+                                <option value="low">🟢 Low</option>
+                                <option value="medium" selected>🟡 Medium</option>
+                                <option value="high">🔴 High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Assign To</label>
+                            <select id="task-assign">
+                                <option value="agent" selected>🤖 AI Agent</option>
+                                <option value="human">👤 Me</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Tags (comma separated)</label>
+                        <input type="text" id="task-tags" placeholder="e.g. research, marketing, urgent" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancel-task">Cancel</button>
+                    <button class="btn btn-primary" id="create-task">Create Task</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Detail Modal -->
+        <div class="modal" id="task-detail-modal">
+            <div class="modal-content modal-lg">
+                <div class="modal-header">
+                    <h3 id="detail-task-title">Task Title</h3>
+                    <button class="modal-close" id="close-detail-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="task-detail-grid">
+                        <div class="task-detail-main">
+                            <div class="detail-section">
+                                <label>Description</label>
+                                <p id="detail-task-description">No description</p>
+                            </div>
+                            <div class="detail-section">
+                                <label>Feedback / Notes</label>
+                                <textarea id="detail-task-feedback" rows="4" placeholder="Add feedback or notes for this task..."></textarea>
+                            </div>
+                        </div>
+                        <div class="task-detail-sidebar">
+                            <div class="detail-item">
+                                <label>Status</label>
+                                <select id="detail-task-status">
+                                    <option value="todo">📥 To Do</option>
+                                    <option value="working">🔄 In Progress</option>
+                                    <option value="review">👀 Review</option>
+                                    <option value="done">✅ Done</option>
+                                </select>
+                            </div>
+                            <div class="detail-item">
+                                <label>Priority</label>
+                                <span id="detail-task-priority" class="priority-badge">Medium</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Assigned To</label>
+                                <span id="detail-task-assignee">🤖 Agent</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Created</label>
+                                <span id="detail-task-created">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Tags</label>
+                                <div id="detail-task-tags" class="tags-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" id="delete-task">🗑️ Delete</button>
+                    <button class="btn btn-primary" id="save-task-detail">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/api.js"></script>
+    <script src="src/tasks.js"></script>
+    <script src="src/app.js"></script>
+</body>
+</html>
+
+<!-- Patch: Add Library nav item after research -->

@@ -1,0 +1,53 @@
+{
+  "$schema": "OpenClaw Security Configuration",
+  "$version": "1.0.0",
+  "$description": "Recommended security settings for Clawdbot deployment",
+  
+  "gateway": {
+    "bind": "loopback",
+    "_comment_bind": "Only allow local connections, prevents external exposure",
+    
+    "auth": {
+      "mode": "token",
+      "token": "<GENERATE_WITH_openssl_rand_-hex_32>",
+      "_comment": "Generate unique token per machine"
+    }
+  },
+  
+  "agents": {
+    "defaults": {
+      "sandbox": {
+        "mode": "non-main",
+        "_comment": "Isolate command execution in sandbox"
+      }
+    }
+  },
+  
+  "tools": {
+    "exec": {
+      "security": "allowlist",
+      "_comment": "Only allow pre-approved commands"
+    }
+  },
+  
+  "dmPolicy": "pairing",
+  "_comment_dmPolicy": "Manually approve new devices before they can interact",
+  
+  "model": {
+    "recommended": "anthropic/claude-opus-4-5",
+    "_comment": "Opus 4.5 has 99% prompt injection resistance"
+  },
+  
+  "security_checklist": [
+    "✅ gateway.bind = loopback",
+    "✅ Unique gateway token per machine",
+    "✅ dmPolicy = pairing",
+    "✅ sandbox mode enabled",
+    "✅ exec security = allowlist",
+    "✅ API tokens scoped/limited",
+    "✅ Ubuntu Pro enabled for security patches",
+    "✅ Firewall configured (ufw)",
+    "✅ SSH key auth only (no passwords)",
+    "✅ Regular backups configured"
+  ]
+}
